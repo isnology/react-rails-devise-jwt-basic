@@ -62,6 +62,10 @@ class User < ApplicationRecord
          :jwt_authenticatable, jwt_revocation_strategy: self
   
   has_many :whitelisted_jwts
+  
+  def jwt_payload
+    { email: email }
+  end
 end
 ```
 - add the following to routes.rb
