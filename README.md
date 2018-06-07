@@ -20,6 +20,18 @@ gem 'dotenv-rails', groups: [:development, :test]
 ```
 gem 'devise-jwt', '~> 0.5.5'
 gem 'active_model_serializers', '~> 0.9.7'
+gem 'rack-cors'
+```
+- create file app/config/initializers/cors.rb and add:-
+```
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'localhost:4200'
+    resource '*',
+             headers: :any,
+             methods: %i(get post put patch delete options head)
+  end
+end
 ```
 - set up devise
 - in app/config/initializers/devise.rb add:-
