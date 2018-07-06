@@ -5,5 +5,6 @@ class CreateJwtBlacklist < ActiveRecord::Migration[5.1]
       t.datetime :exp
     end
     add_index :jwt_blacklist, :jti
+    add_index :jwt_blacklist, :exp
   end
 end

@@ -77,6 +77,7 @@ class CreateJwtBlacklist < ActiveRecord::Migration[5.1]
       t.datetime :exp, null: false
     end
     add_index :jwt_blacklist, :jti
+    add_index :jwt_blacklist, :exp
   end
 end
 ```
@@ -107,8 +108,7 @@ class User < ApplicationRecord
   end
   
   def on_jwt_dispatch(token, payload)
-    super
-    JwtBlacklist.where("exp < ?", Date.today).destroy_all
+    JWTBlacklist.where("exp < ?", Date.today).destroy_all
   end
 end
 ```

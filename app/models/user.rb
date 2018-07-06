@@ -11,7 +11,6 @@ class User < ApplicationRecord
   end
 
   def on_jwt_dispatch(token, payload)
-    super
-    JwtBlacklist.where("exp < ?", Date.today).destroy_all
+    JWTBlacklist.where("exp < ?", Date.today).destroy_all
   end
 end
