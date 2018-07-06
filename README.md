@@ -68,18 +68,28 @@ DEVISE_JWT_SECRET_KEY=xxxxxx
 config.eager_load = true
 config.consider_all_requests_local = false
 ```
-- create a white listed jwt file and migrate:-
+- create a blacklist jwt file and migrate:-
 ```
-class CreateWhitelistedJwts < ActiveRecord::Migration[5.1]
+class CreateJwtBlacklist < ActiveRecord::Migration[5.1]
   def change
-    create_table :whitelisted_jwts do |t|
+    create_table :jwt_blacklist do |t|
       t.string :jti, null: false
-      t.string :aud
       t.datetime :exp, null: false
-      t.references :user, foreign_key: true
     end
-    add_index :whitelisted_jwts, :jti, unique: true
+    add_index :jwt_blacklist, :jti
   end
+end
+```
+- migrate the file
+```
+rails db:migrate
+```
+- create the model
+```
+class JWTBlacklist < ApplicationRecord
+  include Devise::JWT::RevocationStrategies::Blacklist
+  
+  self.table_name = 'jwt_blacklist'
 end
 ```
 - change the user model to:-
@@ -88,21 +98,17 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   
-  include Devise::JWT::RevocationStrategies::Whitelist
-  
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :jwt_authenticatable, jwt_revocation_strategy: self
-  
-  has_many :whitelisted_jwts
+         :jwt_authenticatable, jwt_revocation_strategy: JWTBlacklist
   
   def jwt_payload
     { email: email }
   end
   
   def on_jwt_dispatch(token, payload)
-    WhitelistedJwt.where(user: self.id).where("exp < ?", Date.today).destroy_all
     super
+    JwtBlacklist.where("exp < ?", Date.today).destroy_all
   end
 end
 ```
