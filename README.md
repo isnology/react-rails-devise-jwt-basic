@@ -112,6 +112,11 @@ class User < ApplicationRecord
   end
 end
 ```
+##### on_jwt_dispatch() is used to clear the file of old tokens. It's called at sign on. 
+##### The first user to log in for the day will wait while all 'out of date' token entries are deleted.
+##### For subsequent logins there are no records in the index meeting the criteria (so its fast). 
+##### For a large system, with lots of users, a background task would be more apropriate so on_jwt_dispach() could be removed.
+
 - add the following to routes.rb
 ```
 devise_for :users, defaults: { format: :json }
