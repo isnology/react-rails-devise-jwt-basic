@@ -1,4 +1,12 @@
 # How To Set Up JWT
+- create a Procfile.dev in the root directory of the app and add the following line to it.
+```
+webpacker: ./bin/webpack-dev-server
+```
+- if you don't have foreman installed then install into your home directory (out side your app) as follows:-
+```
+gem install foreman
+```
 - in the application_controller.rb change to:-
 ```
 protect_from_forgery unless: -> { request.format.json? }
@@ -26,10 +34,11 @@ gem 'rack-cors'
 ```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'localhost:4200'
+    origins '*'
     resource '*',
              headers: :any,
-             methods: %i(get post put patch delete options head)
+             methods: %i(get post put patch delete options head),
+             expose: %w(Access-Token Uid Authorization)
   end
 end
 ```
@@ -40,7 +49,7 @@ Devise.setup do |config|
   # ...
   config.jwt do |jwt|
     jwt.secret = ENV['DEVISE_JWT_SECRET_KEY']
-    jwt.expiration_time = 604800
+    jwt.expiration_time = 12 * 3600  # 12 hours
   end
 end
 ```
@@ -63,7 +72,7 @@ bundle exec rake secret
 ```
 DEVISE_JWT_SECRET_KEY=xxxxxx
 ```
-- in app/config/environments/development.rb set the following:-
+- in app/config/environments/development.rb (and test.rb) set the following:-
 ```
 config.eager_load = true
 config.consider_all_requests_local = false
@@ -125,3 +134,13 @@ devise_for :users, defaults: { format: :json }
 ```
 yarn add jwt-decode
 ```
+# to start the babel server run the following command
+```
+foreman start -f Procfile.dev
+```
+- forman loads up the .env variables so they are accessible with process.env.xxxxxx inside react (no need for dotenv 
+module)
+
+- You will also need to start the rails server
+
+

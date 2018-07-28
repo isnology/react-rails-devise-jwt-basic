@@ -2,7 +2,7 @@ import api, { setHeaders } from './init'
 import { rememberToken, getDecodedToken, getValidToken } from './token'
 
 function extractToken(res) {
-  return res.headers.authorization.substring(7)
+  return res.headers.authorization.split(' ')[1]
 }
 
 export function signIn(data) {
